@@ -162,6 +162,27 @@ function NightPanel({ view, byId, call }: PanelProps) {
   }, [n?.tapReadyInMs, n?.index, view.day]);
   if (!n) return null;
 
+  // 마피아별 선택 상태를 ID 기준으로 관리해 중복 집계 방지
+  const mafiaPicksByPlayer = new Map<string, string | null>();
+
+  if (n.step === 'mafia') {
+    for (const teammate of n.team) {
+      // 공개된 역할 정보가 있다면 마피아만 집계
+      if (byId[teammate.id]?.role === 'mafia') {
+        mafiaPicksByPlayer.set(teammate.id, teammate.pick ?? null);
+      }
+    }
+
+    // 본인 선택은 최신 myPick으로 덮어쓰기
+    if (view.me.role === 'mafia') {
+      mafiaPicksByPlayer.set(view.me.id, n.myPick ?? null);
+    }
+  }
+
+  const mafiaTeamPicks = [...mafiaPicksByPlayer.values()].filter(
+    (id): id is string => id !== null
+  );
+
   const header = (
     <>
       <h3>{NIGHT_STEP_TEXT[n.step].text}</h3>
@@ -186,19 +207,19 @@ function NightPanel({ view, byId, call }: PanelProps) {
       <>
         {header}
         <p className="hint">대상을 선택한 뒤 다음을 누르세요.{n.team.length > 0 && ' 동료 모두 같은 대상을 선택해야 합니다.'}</p>
-        {n.team.map((t) => (
-          <p key={t.id} className="small">
-            {t.name}: {t.pick ? byId[t.pick]?.name : '선택 중'} {t.confirmed ? '· 다음 완료' : ''}
-          </p>
-        ))}
+        {n.myPick && <p className="small">내가 선택한 대상: {byId[n.myPick]?.name}</p>}
         <Grid
           players={view.players}
           meId={view.me.id}
           selected={n.myPick}
           teamPicks={
             n.step === 'mafia'
-              ? [n.myPick, ...n.team.map((t) => t.pick)]
-                  .filter((id): id is string => !!id)
+              ? mafiaTeamPicks
+              : undefined
+          }
+          mafiaCount={
+            n.step === 'mafia'
+              ? view.settings.mafia
               : undefined
           }
           selectable={(p) =>

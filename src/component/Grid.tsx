@@ -1,5 +1,7 @@
-import {PublicPlayer} from '@/types';
-import { NIGHT_STEP_TEXT, PHASE_LABEL, ROLE_INFO } from '@/roles';
+
+import type { CSSProperties } from 'react';
+import type { PublicPlayer } from '@/types';
+import { ROLE_INFO } from '@/roles';
 
 type GridProps = {
   players: PublicPlayer[];
@@ -7,6 +9,7 @@ type GridProps = {
   selectable?: (p: PublicPlayer) => boolean;
   selected?: string | null;
   teamPicks?: string[];
+  mafiaCount?: number;
   onSelect?: (p: PublicPlayer) => void;
 };
 
@@ -16,42 +19,55 @@ export default function Grid({
   selectable,
   selected,
   teamPicks,
+  mafiaCount,
   onSelect,
 }: GridProps) {
+  const isMafiaPick =
+    teamPicks !== undefined &&
+    mafiaCount !== undefined;
+
+  const total = Math.max(1, mafiaCount ?? 1);
+
   return (
     <div className="grid">
       {players.map((p) => {
         const can = !!selectable?.(p);
         const roleInfo = p.role ? ROLE_INFO[p.role] : null;
 
-        const pickCount = teamPicks?.filter(
-          (id) => id === p.id
-        ).length ?? 0;
+        const pickCount = isMafiaPick
+          ? teamPicks.filter((id) => id === p.id).length
+          : 0;
 
-        const mafiaPickClass = teamPicks
-          ? pickCount >= 2
-            ? 'mafia-pick-full'
-            : pickCount === 1
-              ? 'mafia-pick-half'
-              : ''
-          : '';
+        const percent = isMafiaPick
+          ? Math.min(100, (pickCount / total) * 100)
+          : 0;
+
+        const isSelected = selected === p.id;
+
+        const style = isMafiaPick
+          ? ({
+              '--mafia-fill': `${percent}%`,
+            } as CSSProperties)
+          : undefined;
 
         return (
           <button
             key={p.id}
+            type="button"
             className={[
               'pcell',
               !p.alive && 'dead',
               can && 'can',
-              selected === p.id && 'selected',
-              mafiaPickClass,
+              isSelected && 'selected',
               (p.role === 'mafia' ||
                 (p.role === 'spy' && p.id !== meId)) &&
                 'is-mafia',
               !p.connected && 'offline',
+              isMafiaPick && 'mafia-fill-card',
             ]
               .filter(Boolean)
               .join(' ')}
+            style={style}
             disabled={!can}
             onClick={() => can && onSelect?.(p)}
           >
@@ -73,14 +89,6 @@ export default function Grid({
                 ? ` ${roleInfo.emoji}${roleInfo.name}`
                 : ''}
             </span>
-
-            {teamPicks && pickCount > 0 && (
-              <span className="mafia-pick-status">
-                {pickCount >= 2
-                  ? '✓ 선택 일치'
-                  : '선택 대기'}
-              </span>
-            )}
           </button>
         );
       })}

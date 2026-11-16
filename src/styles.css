@@ -372,31 +372,44 @@ input:focus { outline: 2px solid var(--accent); border-color: transparent; }
 }
 
 
-/* 마피아 1명 선택 */
-.pcell.mafia-pick-half {
-  opacity: 0.5;
-  transition: opacity 0.2s ease;
-}
-
-/* 마피아 2명 동일 대상 선택 */
-.pcell.mafia-pick-full {
+/* 마피아 선택 비율에 따른 버튼 배경 채우기 */
+.pcell.mafia-fill-card {
+  background-image: linear-gradient(
+    to right,
+    rgba(220, 55, 70, 0.42) 0%,
+    rgba(220, 55, 70, 0.42) var(--mafia-fill, 0%),
+    transparent var(--mafia-fill, 0%),
+    transparent 100%
+  );
+  background-repeat: no-repeat;
+  background-color: #1b2238;
   opacity: 1;
-  transition: opacity 0.2s ease;
 }
 
-/* 선택 상태 텍스트 */
-.mafia-pick-status {
-  display: block;
-  margin-top: 4px;
-  font-size: 11px;
-  font-weight: 700;
+/* 기존 selected 배경색보다 비율 표시 우선 */
+.pcell.mafia-fill-card.selected {
+  background-image: linear-gradient(
+    to right,
+    rgba(220, 55, 70, 0.42) 0%,
+    rgba(220, 55, 70, 0.42) var(--mafia-fill, 0%),
+    transparent var(--mafia-fill, 0%),
+    transparent 100%
+  );
+  background-color: #1b2238;
 }
 
-/* 기존 selected 스타일과 충돌 방지 */
-.pcell.selected.mafia-pick-half {
-  opacity: 0.5;
+/* 기존 마피아 테두리와 별도로 배경 비율만 표시 */
+.pcell.mafia-fill-card.is-mafia {
+  background-image: linear-gradient(
+    to right,
+    rgba(220, 55, 70, 0.42) 0%,
+    rgba(220, 55, 70, 0.42) var(--mafia-fill, 0%),
+    transparent var(--mafia-fill, 0%),
+    transparent 100%
+  );
 }
 
-.pcell.selected.mafia-pick-full {
+/* disabled 상태에서도 비율 표시가 흐려지지 않도록 */
+.pcell.mafia-fill-card:disabled {
   opacity: 1;
 }
