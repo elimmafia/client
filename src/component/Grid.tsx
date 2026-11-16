@@ -10,6 +10,7 @@ type GridProps = {
   selected?: string | null;
   teamPicks?: string[];
   mafiaCount?: number;
+  revealAllRoles?: boolean;
   onSelect?: (p: PublicPlayer) => void;
 };
 
@@ -20,6 +21,7 @@ export default function Grid({
   selected,
   teamPicks,
   mafiaCount,
+  revealAllRoles = false,
   onSelect,
 }: GridProps) {
   const isMafiaPick =
@@ -81,18 +83,32 @@ export default function Grid({
             {/* 마피아가 직접 선택한 대상만 체크 표시 */}
 
             <span className="psub">
-              {!p.alive
-                ? '사망'
-                : p.id === meId
-                  ? '나'
-                  : !p.connected
-                    ? '연결 끊김'
-                    : ''}
+                {revealAllRoles ? (
+                    // 사망자 관전 화면: 생존/사망 관계없이 실제 직업 표시
+                    roleInfo ? (
+                    <>
+                        {roleInfo.emoji} {roleInfo.name}
+                    </>
+                    ) : (
+                    '직업 정보 없음'
+                    )
+                ) : (
+                    // 일반 화면: 기존 표시 방식 유지
+                    <>
+                    {!p.alive
+                        ? '사망'
+                        : p.id === meId
+                        ? '나'
+                        : !p.connected
+                            ? '연결 끊김'
+                            : ''}
 
-              {roleInfo && p.id !== meId
-                ? ` ${roleInfo.emoji}${roleInfo.name}`
-                : ''}
-            </span>
+                    {roleInfo && p.id !== meId
+                        ? ` ${roleInfo.emoji}${roleInfo.name}`
+                        : ''}
+                    </>
+                )}
+                </span>
           </button>
         );
       })}

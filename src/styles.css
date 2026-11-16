@@ -413,3 +413,13 @@ input:focus { outline: 2px solid var(--accent); border-color: transparent; }
 .pcell.mafia-fill-card:disabled {
   opacity: 1;
 }
+
+/* 사망자에게 공개되는 직업 */
+.spectator-role {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  opacity: 0.85;
+}
