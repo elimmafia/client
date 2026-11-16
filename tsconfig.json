@@ -9,7 +9,11 @@
     "noEmit": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@component/*": ["./src/component/*"],
+    }
   },
   "include": ["src"]
 }

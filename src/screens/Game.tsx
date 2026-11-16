@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { send } from '../socket';
-import type { GameView, PublicPlayer } from '../types';
+import { send } from '@/socket';
+import type { GameView, PublicPlayer } from '@/types';
 import type { Notify } from '../App';
-import { NIGHT_STEP_TEXT, PHASE_LABEL, ROLE_INFO } from '../roles';
+import { NIGHT_STEP_TEXT, PHASE_LABEL, ROLE_INFO } from '@/roles';
+import Grid from '@component/Grid';
 
 type Props = { view: GameView; notify: Notify; onLeave: () => void };
 type Call = (event: string, ...args: unknown[]) => Promise<void>;
@@ -80,7 +81,7 @@ export default function Game({ view, notify, onLeave }: Props) {
       </header>
 
       {role && (
-        <button className={`role-card ${isMafiaTeam ? 'mafia' : ''}`} onClick={() => setShowRole(!showRole)}>
+        <button className={`role-card ${isMafiaTeam ? 'mafia' : ''} ${!showRole ? 'hidden' : ''}`} onClick={() => setShowRole(!showRole)}>
           {showRole ? (
             <>
               <div className="role-emoji">{role.emoji}</div>
@@ -194,10 +195,19 @@ function NightPanel({ view, byId, call }: PanelProps) {
           players={view.players}
           meId={view.me.id}
           selected={n.myPick}
+          teamPicks={
+            n.step === 'mafia'
+              ? [n.myPick, ...n.team.map((t) => t.pick)]
+                  .filter((id): id is string => !!id)
+              : undefined
+          }
           selectable={(p) =>
             p.alive &&
             p.id !== n.blockedTarget &&
-            (n.step === 'doctor' || (n.step === 'mafia' ? p.role !== 'mafia' && p.role !== 'spy' : p.role !== n.step))
+            (n.step === 'doctor' ||
+              (n.step === 'mafia'
+                ? p.role !== 'mafia' && p.role !== 'spy'
+                : p.role !== n.step))
           }
           onSelect={(p) => call('night:pick', p.id)}
         />
@@ -398,51 +408,6 @@ function PhasePanel({ view, byId, call }: PanelProps) {
 }
 
 // ─────────────────────────────────────────────────────────
-
-type GridProps = {
-  players: PublicPlayer[];
-  meId: string;
-  selectable?: (p: PublicPlayer) => boolean;
-  selected?: string | null;
-  onSelect?: (p: PublicPlayer) => void;
-};
-
-function Grid({ players, meId, selectable, selected, onSelect }: GridProps) {
-  return (
-    <div className="grid">
-      {players.map((p) => {
-        const can = !!selectable?.(p);
-        const roleInfo = p.role ? ROLE_INFO[p.role] : null;
-        return (
-          <button
-            key={p.id}
-            className={[
-              'pcell',
-              !p.alive && 'dead',
-              can && 'can',
-              selected === p.id && 'selected',
-              (p.role === 'mafia' || (p.role === 'spy' && p.id !== meId)) && 'is-mafia',
-              !p.connected && 'offline',
-            ]
-              .filter(Boolean)
-              .join(' ')}
-            disabled={!can}
-            onClick={() => can && onSelect?.(p)}
-          >
-            <span className="pname">
-              {p.isHost && '👑'}
-              {p.name}
-            </span>
-            <span className="psub">
-              {!p.alive ? '사망' : p.id === meId ? '나' : !p.connected ? '연결 끊김' : ''}
-              {roleInfo && p.id !== meId ? ` ${roleInfo.emoji}${roleInfo.name}` : ''}
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 function LogList({ view }: { view: GameView }) {
   const ref = useRef<HTMLDivElement>(null);

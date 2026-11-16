@@ -223,6 +223,7 @@ input:focus { outline: 2px solid var(--accent); border-color: transparent; }
   min-height: 76px;
 }
 .role-card.mafia { background: linear-gradient(135deg, #7a1622, #2a0a10); }
+.role-card.hidden { background:#8b93ad }
 .role-emoji { font-size: 40px; }
 .role-name { font-size: 1.3rem; font-weight: 800; }
 .team { font-size: 0.75rem; font-weight: 600; opacity: 0.8; margin-left: 6px; }
@@ -368,4 +369,34 @@ input:focus { outline: 2px solid var(--accent); border-color: transparent; }
   z-index: 100;
   max-width: calc(100% - 32px);
   text-align: center;
+}
+
+
+/* 마피아 1명 선택 */
+.pcell.mafia-pick-half {
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+/* 마피아 2명 동일 대상 선택 */
+.pcell.mafia-pick-full {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+/* 선택 상태 텍스트 */
+.mafia-pick-status {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* 기존 selected 스타일과 충돌 방지 */
+.pcell.selected.mafia-pick-half {
+  opacity: 0.5;
+}
+
+.pcell.selected.mafia-pick-full {
+  opacity: 1;
 }
