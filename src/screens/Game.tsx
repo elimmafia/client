@@ -207,7 +207,6 @@ function NightPanel({ view, byId, call }: PanelProps) {
       <>
         {header}
         <p className="hint">대상을 선택한 뒤 다음을 누르세요.{n.team.length > 0 && ' 동료 모두 같은 대상을 선택해야 합니다.'}</p>
-        {n.myPick && <p className="small">내가 선택한 대상: {byId[n.myPick]?.name}</p>}
         <Grid
           players={view.players}
           meId={view.me.id}
@@ -219,7 +218,9 @@ function NightPanel({ view, byId, call }: PanelProps) {
           }
           mafiaCount={
             n.step === 'mafia'
-              ? view.settings.mafia
+              ? view.players.filter(
+                  (p) => p.alive && p.role === 'mafia'
+                ).length
               : undefined
           }
           selectable={(p) =>

@@ -74,7 +74,11 @@ export default function Grid({
             <span className="pname">
               {p.isHost && '👑'}
               {p.name}
+                {isMafiaPick && isSelected && (
+                <span className="mafia-my-check"> ✅</span>
+                )}
             </span>
+            {/* 마피아가 직접 선택한 대상만 체크 표시 */}
 
             <span className="psub">
               {!p.alive
